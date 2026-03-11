@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Docs knowledge base ingest pipeline for Morpheus.
+"""Docs knowledge base ingest pipeline for OpenClaw.
 
 Usage:
     python3 docs-ingest.py --source n8n           # Ingest one source
