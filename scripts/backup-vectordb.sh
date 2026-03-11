@@ -6,10 +6,16 @@ mkdir -p "$BACKUP_DIR"
 
 if [ -f ~/.openclaw/.env ]; then
   while IFS='=' read -r key value; do
+    value="${value%"${value##*[![:space:]]}"}"  # trim trailing whitespace
     case "$key" in
-      QDRANT_API_KEY) export "$key=$value" ;;
+      QDRANT_API_KEY) export "$key"="$value" ;;
     esac
   done < ~/.openclaw/.env
+fi
+
+if [ -z "${QDRANT_API_KEY:-}" ]; then
+  echo "ERROR: QDRANT_API_KEY not set" >&2
+  exit 2
 fi
 
 SNAP_RESPONSE=$(curl -s --max-time 60 -X POST \

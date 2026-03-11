@@ -10,8 +10,9 @@ QDRANT_COLLECTION="memories"
 # Load secrets from .env
 if [ -f ~/.openclaw/.env ]; then
   while IFS='=' read -r key value; do
+    value="${value%"${value##*[![:space:]]}"}"  # trim trailing whitespace
     case "$key" in
-      QDRANT_API_KEY|OPENAI_API_KEY) export "$key=$value" ;;
+      QDRANT_API_KEY|OPENAI_API_KEY) export "$key"="$value" ;;
     esac
   done < ~/.openclaw/.env
 fi
@@ -44,6 +45,24 @@ done
 
 if [ -z "$TEXT" ] || [ -z "$CLIENT_ID" ]; then
   echo "ERROR: --text and --client_id are required" >&2
+  exit 1
+fi
+
+# Validate category
+case "$CATEGORY" in
+  semantic|episodic|procedural) ;;
+  *) echo "ERROR: --category must be semantic, episodic, or procedural (got: $CATEGORY)" >&2; exit 1 ;;
+esac
+
+# Validate importance
+case "$IMPORTANCE" in
+  critical|high|medium|low) ;;
+  *) echo "ERROR: --importance must be critical, high, medium, or low (got: $IMPORTANCE)" >&2; exit 1 ;;
+esac
+
+# Validate client_id format (alphanumeric, hyphens, underscores, dots)
+if ! echo "$CLIENT_ID" | grep -qE '^[a-zA-Z0-9._-]+$'; then
+  echo "ERROR: --client_id contains invalid characters (use alphanumeric, hyphens, underscores, dots)" >&2
   exit 1
 fi
 

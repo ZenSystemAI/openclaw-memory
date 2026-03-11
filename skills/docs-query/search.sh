@@ -10,8 +10,9 @@ QDRANT_COLLECTION="docs"
 # Load secrets from .env
 if [ -f ~/.openclaw/.env ]; then
   while IFS='=' read -r key value; do
+    value="${value%"${value##*[![:space:]]}"}"  # trim trailing whitespace
     case "$key" in
-      QDRANT_API_KEY|OPENAI_API_KEY) export "$key=$value" ;;
+      QDRANT_API_KEY|OPENAI_API_KEY) export "$key"="$value" ;;
     esac
   done < ~/.openclaw/.env
 fi
@@ -42,6 +43,12 @@ done
 
 if [ -z "$QUERY" ]; then
   echo "ERROR: --query is required" >&2
+  exit 1
+fi
+
+# Validate limit is a positive integer
+if ! echo "$LIMIT" | grep -qE '^[0-9]+$' || [ "$LIMIT" -eq 0 ]; then
+  echo "ERROR: --limit must be a positive integer" >&2
   exit 1
 fi
 

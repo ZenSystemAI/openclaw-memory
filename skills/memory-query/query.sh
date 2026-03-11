@@ -11,8 +11,9 @@ QDRANT_COLLECTION="memories"
 
 if [ -f ~/.openclaw/.env ]; then
   while IFS='=' read -r key value; do
+    value="${value%"${value##*[![:space:]]}"}"  # trim trailing whitespace
     case "$key" in
-      QDRANT_API_KEY|OPENAI_API_KEY|BRAIN_API_KEY|BRAIN_API_URL) export "$key=$value" ;;
+      QDRANT_API_KEY|OPENAI_API_KEY|BRAIN_API_KEY|BRAIN_API_URL) export "$key"="$value" ;;
     esac
   done < ~/.openclaw/.env
 fi
@@ -51,6 +52,26 @@ done
 
 if [ -z "$QUERY" ] || [ -z "$CLIENT_ID" ]; then
   echo "ERROR: --query and --client_id are required" >&2
+  exit 1
+fi
+
+# Validate client_id format
+if ! echo "$CLIENT_ID" | grep -qE '^[a-zA-Z0-9._-]+$'; then
+  echo "ERROR: --client_id contains invalid characters" >&2
+  exit 1
+fi
+
+# Validate category if provided
+if [ -n "$CATEGORY" ]; then
+  case "$CATEGORY" in
+    semantic|episodic|procedural) ;;
+    *) echo "ERROR: --category must be semantic, episodic, or procedural" >&2; exit 1 ;;
+  esac
+fi
+
+# Validate limit is a positive integer
+if ! echo "$LIMIT" | grep -qE '^[0-9]+$' || [ "$LIMIT" -eq 0 ]; then
+  echo "ERROR: --limit must be a positive integer" >&2
   exit 1
 fi
 

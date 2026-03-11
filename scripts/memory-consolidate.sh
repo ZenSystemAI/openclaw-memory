@@ -17,8 +17,9 @@ MAX_BATCHES=20
 
 if [ -f "$HOME/.openclaw/.env" ]; then
     while IFS='=' read -r key value; do
+        value="${value%"${value##*[![:space:]]}"}"  # trim trailing whitespace
         case "$key" in
-            QDRANT_API_KEY|OPENAI_API_KEY|BRAIN_API_KEY|BRAIN_API_URL) export "$key=$value" ;;
+            QDRANT_API_KEY|OPENAI_API_KEY|BRAIN_API_KEY|BRAIN_API_URL) export "$key"="$value" ;;
         esac
     done < "$HOME/.openclaw/.env"
 fi
@@ -27,6 +28,11 @@ if [ -z "${OPENAI_API_KEY:-}" ]; then
     echo "ERROR: OPENAI_API_KEY not set" >&2
     exit 2
 fi
+
+# Cleanup temp files on exit (normal or error)
+TMPFILES=()
+cleanup() { rm -f "${TMPFILES[@]}"; }
+trap cleanup EXIT
 
 log() {
     echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) CONSOLIDATE $*" >> "$LOG_FILE"
@@ -196,8 +202,10 @@ $COMBINED_TEXT"
 
     # Build OpenAI API payload
     PROMPT_FILE=$(mktemp)
+    TMPFILES+=("$PROMPT_FILE")
     echo "$PROMPT" > "$PROMPT_FILE"
     PAYLOAD_FILE=$(mktemp)
+    TMPFILES+=("$PAYLOAD_FILE")
     jq -n --arg model "$OPENAI_MODEL" --rawfile prompt "$PROMPT_FILE" \
         '{model: $model, max_tokens: 2000, temperature: 0.1, response_format: {type: "json_object"}, messages: [{role: "system", content: "You extract facts and return valid JSON objects. Always respond with a JSON object containing a facts array."}, {role: "user", content: $prompt}]}' > "$PAYLOAD_FILE"
 

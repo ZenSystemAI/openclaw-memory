@@ -6,8 +6,9 @@ QDRANT_COLLECTION="memories"
 
 if [ -f ~/.openclaw/.env ]; then
   while IFS='=' read -r key value; do
+    value="${value%"${value##*[![:space:]]}"}"  # trim trailing whitespace
     case "$key" in
-      QDRANT_API_KEY) export "$key=$value" ;;
+      QDRANT_API_KEY) export "$key"="$value" ;;
     esac
   done < ~/.openclaw/.env
 fi
@@ -29,6 +30,17 @@ while [[ $# -gt 0 ]]; do
     *) echo "Unknown arg: $1" >&2; exit 1 ;;
   esac
 done
+
+# Validate inputs
+if [ -n "$CLIENT_ID" ] && ! echo "$CLIENT_ID" | grep -qE '^[a-zA-Z0-9._-]+$'; then
+  echo "ERROR: --client_id contains invalid characters" >&2
+  exit 1
+fi
+
+if [ -n "$POINT_ID" ] && ! echo "$POINT_ID" | grep -qE '^[0-9]+$'; then
+  echo "ERROR: --point_id must be a numeric ID" >&2
+  exit 1
+fi
 
 if [ -n "$POINT_ID" ]; then
   RESPONSE=$(curl -s --max-time 10 -X POST \

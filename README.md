@@ -1,6 +1,17 @@
-# OpenClaw Memory Toolkit
+<p align="center">
+  <img src=".github/logo.svg" alt="ZenSystem" width="120" />
+  <h1 align="center">OpenClaw Memory Toolkit</h1>
+  <p align="center">
+    Production-grade long-term memory, documentation search, and cross-agent knowledge sharing for OpenClaw
+  </p>
+  <p align="center">
+    <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg" />
+    <img alt="Shell" src="https://img.shields.io/badge/shell-bash-green.svg" />
+    <img alt="Python 3.10+" src="https://img.shields.io/badge/python-3.10%2B-blue.svg" />
+  </p>
+</p>
 
-**Production-grade long-term memory, documentation search, and cross-agent knowledge sharing for OpenClaw.**
+---
 
 OpenClaw's built-in memory indexes your markdown files. This toolkit goes further — it **extracts structured knowledge** from your sessions, builds a searchable documentation knowledge base, and optionally bridges your agent's memory to other systems.
 
@@ -245,8 +256,12 @@ Use OpenClaw's native `memory_search` for recent session context. Use this toolk
 
 MIT — see [LICENSE](LICENSE).
 
-## Credits
+## See Also
 
-Built by [ZenSystem](https://zensystem.ai). Born from a production setup running 10+ OpenClaw agents that needed real long-term memory.
+- **[Multi-Agent Memory](https://github.com/ZenSystemAI/multi-agent-memory)** — Cross-machine, cross-agent persistent memory for AI systems. The shared brain that this toolkit bridges to.
 
-See also: [Multi-Agent Memory](https://github.com/ZenSystemAI/multi-agent-memory) — cross-machine, cross-agent persistent memory for AI systems.
+---
+
+<p align="center">
+  Built by <a href="https://zensystem.ai">ZenSystem</a> &mdash; Open Source from Quebec, Canada
+</p>
